@@ -409,9 +409,10 @@ MonoBehaviour:
   grassCube: {fileID: 4544450453818484767, guid: ace269041ce1eb04f9028fd1bf0b1dcf, type: 3}
   groundCube: {fileID: 3174887336553872691, guid: 749b548fdfd01544685ec0fac71a2076, type: 3}
   parentObject: {fileID: 653111263}
+  parentTile: {fileID: 0}
   cubeObj: []
-  height: 5
-  width: 5
+  height: 8
+  width: 8
 --- !u!4 &567552746
 Transform:
   m_ObjectHideFlags: 0

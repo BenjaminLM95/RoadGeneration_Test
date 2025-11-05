@@ -1,5 +1,7 @@
 using UnityEngine;
-using System.Collections.Generic; 
+using System.Collections.Generic;
+
+
 
 public class GrassRoadGenerator : MonoBehaviour
 {
@@ -8,13 +10,14 @@ public class GrassRoadGenerator : MonoBehaviour
     public GameObject grassCube;
     public GameObject groundCube;
     public GameObject parentObject;
+    public GameObject parentTile; 
 
     public List<GameObject> cubeObj = new List<GameObject>();
     public GrassRoad[,] grassRoadTiles; 
     
 
-    public int height = 5;
-    public int width = 5; 
+    public int height = 8;
+    public int width = 8; 
 
     public bool[,] tilesConnected; 
 
@@ -22,10 +25,10 @@ public class GrassRoadGenerator : MonoBehaviour
     void Start()
     {
         grassRoadTiles = new GrassRoad[width, height]; 
-        GenerateWholeField(width, height);
-        GetConnectedTiles();
+        GenerateWholeField(width, height);        
         tilesConnected = new bool[width, height];
-        
+        //GetConnectedTiles();
+
     }
 
     // Update is called once per frame
@@ -42,7 +45,7 @@ public class GrassRoadGenerator : MonoBehaviour
             {
                 if ((i == 0 && (j == 0 || j == grassRoad.tile.GetLength(1))) || (i == grassRoad.tile.GetLength(1) || (j == 0 || j == grassRoad.tile.GetLength(1))))
                 {
-                    grassRoad.tile[i, j] = true;
+                    grassRoad.tile[i, j] = false;
                 }
                 else
                 {
@@ -68,13 +71,13 @@ public class GrassRoadGenerator : MonoBehaviour
             {
                 if (_grassTile.tile[i, j])
                 {                    
-                    var prefabTile = Instantiate(grassCube, new Vector3(i + startPos.x, startPos.y, j + startPos.z), Quaternion.identity);
+                    var prefabTile = Instantiate(groundCube, new Vector3(i + startPos.x, startPos.y, j + startPos.z), Quaternion.identity);
                     cubeObj.Add(prefabTile);
                     prefabTile.transform.SetParent(parentObject.transform); 
                 }
                 else
                 {
-                    var prefabTile = Instantiate(groundCube, new Vector3(i + startPos.x, startPos.y, j + startPos.z), Quaternion.identity);
+                    var prefabTile = Instantiate(grassCube, new Vector3(i + startPos.x, startPos.y, j + startPos.z), Quaternion.identity);
                     cubeObj.Add(prefabTile);
                     prefabTile.transform.SetParent(parentObject.transform);
                 }
@@ -86,15 +89,26 @@ public class GrassRoadGenerator : MonoBehaviour
     {
         for(int i = 0; i < width; i++) 
         {
+            
             for(int j = 0; j < height; j++) 
             {
+
                 _grassTile = new GrassRoad();
                 _grassTile.tile = new bool[3, 3];
 
-                GenerateRandomTiles(_grassTile);
-                grassRoadTiles[i, j] = _grassTile;  
+                if (i == 0 || j == 0 || i == width - 1 || j == height - 1)
+                {
+                    _grassTile.SetGreenTile();
+                    Debug.Log(i + ", " + j); 
+                }
+                else
+                {
 
-                GenerateTheTile(_grassTile, new Vector3(0.5f + 3f * i, 0, 0.5f + 3f * j));
+                    GenerateRandomTiles(_grassTile);
+                    grassRoadTiles[i, j] = _grassTile;
+
+                    GenerateTheTile(_grassTile, new Vector3(0.5f + 3f * i, 0, 0.5f + 3f * j));
+                }
 
             }
         }
@@ -114,7 +128,7 @@ public class GrassRoadGenerator : MonoBehaviour
         {
             for(int j = 0; j < height; j++) 
             {
-                grassRoadTiles[i, j].AssignConnectionTiles();  
+                grassRoadTiles[i, j].AssignConnectionTiles(grassRoadTiles[i,j]);  
             }
         }
     }
@@ -143,12 +157,23 @@ public class GrassRoad
         return tile[x, y]; 
     }
 
-    public void AssignConnectionTiles() 
+    public void AssignConnectionTiles(GrassRoad grassRoad) 
     {
-        centreTopCon = tile[1, 2];
-        centreLeftCon = tile[0, 1];
-        centreRightCon = tile[2, 1];
-        centreDownCon = tile[1, 0]; 
+        centreTopCon = grassRoad.tile[1, 2];
+        centreLeftCon = grassRoad.tile[0, 1];
+        centreRightCon = grassRoad.tile[2, 1];
+        centreDownCon = grassRoad.tile[1, 0]; 
+    }
+       
+    public void SetGreenTile() 
+    {
+        for(int i = 0; i < tile.GetLength(0); i++) 
+        {
+            for(int j = 0; j < tile.GetLength(1); j++) 
+            {
+                tile[i, j] = false; 
+            }
+        }
     }
         
 }
