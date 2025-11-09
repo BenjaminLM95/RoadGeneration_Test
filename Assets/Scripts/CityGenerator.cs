@@ -8,8 +8,10 @@ public class CityGenerator : MonoBehaviour
     public GameObject roadPrefab;
     public GameObject buildingPrefab;
     public GameObject parkPrefab;
+    public GameObject sidewalkPrefab; 
 
-    public int[,] cityMap; 
+    public int[,] cityMap;
+    public int[,] tempCityMap; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -17,6 +19,9 @@ public class CityGenerator : MonoBehaviour
         cityMap = new int[cityWidth, cityHeight];
 
         GenerateMap(); 
+        tempCityMap = new int[cityWidth, cityHeight];
+        GettingACopyOfMap(cityMap, tempCityMap); 
+        AddingSideWalk(cityMap, tempCityMap); 
         GenerateCity();
         PutTheBuildings(cityMap); 
     }
@@ -34,26 +39,27 @@ public class CityGenerator : MonoBehaviour
             for (int z = 0; z < cityHeight; z++)
             {
                 Vector3 position = new Vector3(x * blockSize, 0, z * blockSize);
-
-                GameObject tempObj = new GameObject(); 
+                
 
                 switch (cityMap[x, z]) 
                 {
                     case 0:
-                        tempObj = roadPrefab;
+                        Instantiate(roadPrefab, position, Quaternion.identity);                        
                         break;
-                    case 1: 
-                        tempObj = buildingPrefab;
+                    case 1:
+                        Instantiate(buildingPrefab, position, Quaternion.identity);                        
                         break;
                     case 2:
-                        tempObj = parkPrefab;
+                        Instantiate(parkPrefab, position, Quaternion.identity);                        
                         break;
+                    case 3:
+                        Instantiate(sidewalkPrefab, position, Quaternion.identity);                        
+                        break; 
                     default:
-                        tempObj = roadPrefab;
+                        Instantiate(roadPrefab, position, Quaternion.identity);                        
                         break;
                 }
-
-                Instantiate(tempObj, position, Quaternion.identity, transform);
+                                
                 
             }
         }
@@ -65,14 +71,14 @@ public class CityGenerator : MonoBehaviour
         {
             for(int j = 0; j < cityHeight; j++) 
             {
-                if(i % 3 == 0 || j % (cityHeight/3) == 0) 
+                if(i % 6 == 0 || i % 6 == 1 || j % (cityHeight/3) == 0 || j % (cityHeight / 3) == 1) 
                 {
                     cityMap[i, j] = 0; 
                 }
                 else 
                 {
                     int rnd = Random.Range(0, 100);
-                    if(rnd < 50) 
+                    if(rnd < 80) 
                     {
                         cityMap[i, j] = 1; 
                     }
@@ -97,7 +103,7 @@ public class CityGenerator : MonoBehaviour
             Vector3 newPos = new Vector3(pos.x * blockSize, pos.y + i, pos.z * blockSize); 
 
             Instantiate(buildingPrefab, newPos, Quaternion.identity);
-            Debug.Log(newPos); 
+            //Debug.Log(newPos); 
         }
     }
 
@@ -115,11 +121,70 @@ public class CityGenerator : MonoBehaviour
                 }
                 else
                 {
-                    int rndHeight = Random.Range(1, 6);
+                    int rndHeight = Random.Range(6, 13);
                     GenerateBuildingHeight(rndHeight, new Vector3(i, 0, j));
                 }
                 
             }
         }
     }
+
+    public int CountingNeighbours(int[,] map, int x, int y) 
+    {
+        int count = 0; 
+
+        for(int i = x - 1; i <= x + 1; i++) 
+        {
+            for(int j = y - 1; j <= y + 1; j++) 
+            {
+                if(i >= 0 && j >= 0 && i <  map.GetLength(0) && j < map.GetLength(1))  // Avoid getting out of bounds of the array
+                {
+                    if ((x == i || y == j) && !(i == x && j == y))  // Selecting only the neighbours
+                    {
+                        if (map[i, j] == 1 || map[i, j] == 2)  // The result should be equal to building or park tile (1 or 2)
+                        {
+                            
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return count; 
+    }
+
+    public void GettingACopyOfMap(int[,] map, int[,] copyMap) 
+    { 
+        for(int i = 0; i < map.GetLength(0); i++) 
+        {
+            for(int j = 0; j < map.GetLength(1); j++) 
+            {
+                copyMap[i,j] = map[i, j];
+            }
+        }
+    }
+
+    public void AddingSideWalk(int[,] _map, int[,] _tempMap) 
+    {
+        
+        for (int i = 0; i < _map.GetLength(0); i++)
+        {
+            for (int j = 0; j < _map.GetLength(1); j++)
+            {
+                if((_map[i,j] == 1 || _map[i,j] == 2)) 
+                {   
+                   if(CountingNeighbours(_map, i, j) < 4) 
+                    {                        
+                        _tempMap[i, j] = 3;
+                    }
+                }
+
+            }
+        }
+
+        GettingACopyOfMap(_tempMap, _map);        
+
+    }
+
 }
