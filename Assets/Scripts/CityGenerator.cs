@@ -8,28 +8,52 @@ public class CityGenerator : MonoBehaviour
     public GameObject roadPrefab;
     public GameObject buildingPrefab;
     public GameObject parkPrefab;
-    public GameObject sidewalkPrefab; 
+    public GameObject sidewalkPrefab;
+    public GameObject parentObj;
+    public GameObject lightTrafficObj;
+
+    public int blockWidth;
+    public int blockHeight; 
 
     public int[,] cityMap;
-    public int[,] tempCityMap; 
+    public int[,] tempCityMap;
+    public float[,] buildingHeightPatron; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         cityMap = new int[cityWidth, cityHeight];
-
-        GenerateMap(); 
+        buildingHeightPatron = new float[cityWidth, cityHeight];        
         tempCityMap = new int[cityWidth, cityHeight];
-        GettingACopyOfMap(cityMap, tempCityMap); 
-        AddingSideWalk(cityMap, tempCityMap); 
-        GenerateCity();
-        PutTheBuildings(cityMap); 
+
+        blockWidth = Random.Range(5, Mathf.Max(7, cityWidth / 2));
+        
+
+
+        BuildingTheCity(cityMap, tempCityMap, buildingHeightPatron);
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            DestroyCity();
+            BuildingTheCity(cityMap, tempCityMap, buildingHeightPatron);
+        }
+    }
+
+    void BuildingTheCity(int[,] _cityMap, int[,] _copyCityMap, float[,] _heighRanges) 
+    {
+        blockWidth = Random.Range(5, Mathf.Max(7, cityWidth / 2));
+        GenerateMap();        
+        GettingACopyOfMap(_cityMap, _copyCityMap);
+        AddingSideWalk(_cityMap, _copyCityMap);
+        GenerateCity();
+        GetRandomHeight(_heighRanges);
+        InsertBuilding(_cityMap, _heighRanges);
+        AddTrafficLight(_cityMap); 
     }
 
     void GenerateCity()
@@ -44,19 +68,19 @@ public class CityGenerator : MonoBehaviour
                 switch (cityMap[x, z]) 
                 {
                     case 0:
-                        Instantiate(roadPrefab, position, Quaternion.identity);                        
+                        Instantiate(roadPrefab, position, Quaternion.identity, parentObj.transform);                        
                         break;
                     case 1:
-                        Instantiate(buildingPrefab, position, Quaternion.identity);                        
+                        //Instantiate(buildingPrefab, position, Quaternion.identity);                      
                         break;
                     case 2:
-                        Instantiate(parkPrefab, position, Quaternion.identity);                        
+                        Instantiate(parkPrefab, position, Quaternion.identity, parentObj.transform);                        
                         break;
                     case 3:
-                        Instantiate(sidewalkPrefab, position, Quaternion.identity);                        
+                        Instantiate(sidewalkPrefab, position, Quaternion.identity, parentObj.transform);                        
                         break; 
                     default:
-                        Instantiate(roadPrefab, position, Quaternion.identity);                        
+                        Instantiate(roadPrefab, position, Quaternion.identity, parentObj.transform);                        
                         break;
                 }
                                 
@@ -71,14 +95,14 @@ public class CityGenerator : MonoBehaviour
         {
             for(int j = 0; j < cityHeight; j++) 
             {
-                if(i % 6 == 0 || i % 6 == 1 || j % (cityHeight/3) == 0 || j % (cityHeight / 3) == 1) 
+                if(i % blockWidth == 0 || i % blockWidth == 1 || j % (cityHeight/3) == 0 || j % (cityHeight / 3) == 1) 
                 {
                     cityMap[i, j] = 0; 
                 }
                 else 
                 {
                     int rnd = Random.Range(0, 100);
-                    if(rnd < 80) 
+                    if(rnd < 20) 
                     {
                         cityMap[i, j] = 1; 
                     }
@@ -186,5 +210,75 @@ public class CityGenerator : MonoBehaviour
         GettingACopyOfMap(_tempMap, _map);        
 
     }
+
+
+    public void InsertBuilding(int[,] _map, float[,] heightMap) 
+    {
+        for (int i = 0; i < _map.GetLength(0); i++)
+        {
+            for (int j = 0; j < _map.GetLength(1); j++)
+            {
+                if (_map[i,j] == 1) 
+                {
+                    GameObject buildingObj = buildingPrefab;
+                    //buildingObj = buildingPrefab;
+                    buildingObj.transform.localScale = new Vector3(buildingObj.transform.localScale.x , 25 * Random.Range(1, 10 * (int)heightMap[i,j]) * heightMap[i,j], buildingObj.transform.localScale.z);                      
+                    Instantiate(buildingObj, new Vector3(i * blockSize, buildingObj.transform.localScale.y / 2, j * blockSize), Quaternion.identity, parentObj.transform);
+                   
+                }
+
+            }
+        }
+    }
+
+    public void GetRandomHeight(float[,] arrayHeight)
+    {
+        for (int i = 0; i < arrayHeight.GetLength(0); i++)
+        {
+            for (int j = 0; j < arrayHeight.GetLength(1); j++) 
+            {
+                float centreX = (float)arrayHeight.GetLength(0) / 2f;                
+                float centreY = (float)arrayHeight.GetLength(1) / 2f;                
+
+                float numDisX = 1f - (Mathf.Abs((float)i - centreX)) / centreX;    // This calculates how close it is from the centre of X
+                float numDisY = 1f - (Mathf.Abs((float)j - centreY))/ centreY;  // This calculates how close it is from the centre of Y
+                float numDis = (numDisX + numDisY)/2;    
+
+                //Debug.Log($"({i}, {j}): {numDis}"); 
+                arrayHeight[i, j] = numDis;                 
+            }
+        }
+    }
+
+
+    public void AddTrafficLight(int[,] _cityMap) 
+    {
+        for(int i = 0; i < _cityMap.GetLength(0); i++) 
+        {
+            for(int j = 0; j < _cityMap.GetLength(1); j++) 
+            {
+                if (_cityMap[i,j] == 3 && CountingNeighbours(_cityMap, i, j) == 0) 
+                {
+                    Instantiate(lightTrafficObj, new Vector3(i * blockSize + 2, 4.5f, j * blockSize + 2), Quaternion.identity, parentObj.transform);
+                    Instantiate(lightTrafficObj, new Vector3(i * blockSize - 2, 4.5f, j * blockSize - 2), Quaternion.Euler(0f, 90f, 0f), parentObj.transform);
+                }
+            }
+        }
+    }
+
+    public void DestroyCity() 
+    {
+        for (int i = parentObj.transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = parentObj.transform.GetChild(i);
+
+            // Destroy in Play Mode
+            Destroy(child.gameObject);
+
+            // If you want it to work in Edit Mode too, use:
+            // DestroyImmediate(child.gameObject);
+        }
+    }
+
 
 }

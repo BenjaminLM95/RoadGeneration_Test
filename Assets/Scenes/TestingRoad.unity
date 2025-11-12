@@ -205,13 +205,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1077265014}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.15298621, y: -0, z: -0, w: 0.9882283}
+  m_LocalPosition: {x: 76.8, y: 60.2, z: -83.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 17.6, y: 0, z: 0}
 --- !u!114 &1077265018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256,6 +256,37 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &1248152373
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1248152374}
+  m_Layer: 0
+  m_Name: City
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1248152374
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248152373}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 61.145733, y: -20.936094, z: 77.70246}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1516962630
 GameObject:
   m_ObjectHideFlags: 0
@@ -285,13 +316,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f5797b199e88e24f947830e1c4ea59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityWidth: 32
-  cityHeight: 32
+  cityWidth: 50
+  cityHeight: 50
   blockSize: 5
   roadPrefab: {fileID: 678587437334958815, guid: 7ae1a98b482bd6f42ac58d9b4c838347, type: 3}
   buildingPrefab: {fileID: 8279089830100739950, guid: b2ece1bf8e2782d4e856b8b89bdb3bbb, type: 3}
   parkPrefab: {fileID: 4544450453818484767, guid: ace269041ce1eb04f9028fd1bf0b1dcf, type: 3}
   sidewalkPrefab: {fileID: 3174887336553872691, guid: 749b548fdfd01544685ec0fac71a2076, type: 3}
+  parentObj: {fileID: 1248152373}
+  lightTrafficObj: {fileID: 6025738160318749311, guid: 65335cbe5e891be41ab21251d5d43b16, type: 3}
+  blockWidth: 0
+  blockHeight: 0
 --- !u!4 &1516962632
 Transform:
   m_ObjectHideFlags: 0
@@ -435,3 +470,4 @@ SceneRoots:
   - {fileID: 1077265017}
   - {fileID: 1585839081}
   - {fileID: 1516962632}
+  - {fileID: 1248152374}
