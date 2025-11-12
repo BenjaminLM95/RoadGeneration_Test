@@ -321,12 +321,12 @@ MonoBehaviour:
   blockSize: 5
   roadPrefab: {fileID: 678587437334958815, guid: 7ae1a98b482bd6f42ac58d9b4c838347, type: 3}
   buildingPrefab: {fileID: 8279089830100739950, guid: b2ece1bf8e2782d4e856b8b89bdb3bbb, type: 3}
-  parkPrefab: {fileID: 4544450453818484767, guid: ace269041ce1eb04f9028fd1bf0b1dcf, type: 3}
+  gardenPrefab: {fileID: 4544450453818484767, guid: ace269041ce1eb04f9028fd1bf0b1dcf, type: 3}
   sidewalkPrefab: {fileID: 3174887336553872691, guid: 749b548fdfd01544685ec0fac71a2076, type: 3}
   parentObj: {fileID: 1248152373}
   lightTrafficObj: {fileID: 6025738160318749311, guid: 65335cbe5e891be41ab21251d5d43b16, type: 3}
+  buildingRate: 70
   blockWidth: 0
-  blockHeight: 0
 --- !u!4 &1516962632
 Transform:
   m_ObjectHideFlags: 0

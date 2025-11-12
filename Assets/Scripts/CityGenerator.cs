@@ -7,13 +7,15 @@ public class CityGenerator : MonoBehaviour
     public float blockSize = 5f;
     public GameObject roadPrefab;
     public GameObject buildingPrefab;
-    public GameObject parkPrefab;
+    public GameObject gardenPrefab;
     public GameObject sidewalkPrefab;
     public GameObject parentObj;
     public GameObject lightTrafficObj;
 
-    public int blockWidth;
-    public int blockHeight; 
+    [Range(0, 100)]
+    [SerializeField] int buildingRate = 50; // The chances to build a building or a garden
+
+    public int blockWidth;     
 
     public int[,] cityMap;
     public int[,] tempCityMap;
@@ -46,14 +48,15 @@ public class CityGenerator : MonoBehaviour
 
     void BuildingTheCity(int[,] _cityMap, int[,] _copyCityMap, float[,] _heighRanges) 
     {
-        blockWidth = Random.Range(5, Mathf.Max(7, cityWidth / 2));
+        blockWidth = Random.Range(10, Mathf.Max(15, cityWidth / 2));
         GenerateMap();        
         GettingACopyOfMap(_cityMap, _copyCityMap);
         AddingSideWalk(_cityMap, _copyCityMap);
         GenerateCity();
         GetRandomHeight(_heighRanges);
         InsertBuilding(_cityMap, _heighRanges);
-        AddTrafficLight(_cityMap); 
+        AddTrafficLight(_cityMap);
+        ColorTheBuilding(); 
     }
 
     void GenerateCity()
@@ -68,15 +71,18 @@ public class CityGenerator : MonoBehaviour
                 switch (cityMap[x, z]) 
                 {
                     case 0:
+                        //Create the tile for the road
                         Instantiate(roadPrefab, position, Quaternion.identity, parentObj.transform);                        
                         break;
                     case 1:
-                        //Instantiate(buildingPrefab, position, Quaternion.identity);                      
+                        // Don't do anything, the building wil be created later in another method                      
                         break;
                     case 2:
-                        Instantiate(parkPrefab, position, Quaternion.identity, parentObj.transform);                        
+                        // Create the tile for the garden
+                        Instantiate(gardenPrefab, position, Quaternion.identity, parentObj.transform);                        
                         break;
                     case 3:
+                        // Create the tile for the sidewalk
                         Instantiate(sidewalkPrefab, position, Quaternion.identity, parentObj.transform);                        
                         break; 
                     default:
@@ -93,22 +99,31 @@ public class CityGenerator : MonoBehaviour
     {
         for (int i = 0; i < cityWidth; i++) 
         {
-            for(int j = 0; j < cityHeight; j++) 
+            for (int j = 0; j < cityHeight; j++)
             {
-                if(i % blockWidth == 0 || i % blockWidth == 1 || j % (cityHeight/3) == 0 || j % (cityHeight / 3) == 1) 
+                if (i == 0 || j == 0 || i == cityWidth || j == cityHeight)
                 {
-                    cityMap[i, j] = 0; 
+                    // If its in the border of the city, the tile will be a road
+                    cityMap[i, j] = 0;
                 }
-                else 
+                else
                 {
-                    int rnd = Random.Range(0, 100);
-                    if(rnd < 20) 
+                    if (i % 6 == 0 || i % 6 == 1 || j % blockWidth == 0 || j % blockWidth == 1)
                     {
-                        cityMap[i, j] = 1; 
+                        cityMap[i, j] = 0;
                     }
-                    else 
+                    else
                     {
-                        cityMap[i, j] = 2; 
+                        int rnd = Random.Range(0, 100);
+                        //Depend of a random number it will build a building or garden
+                        if (rnd < buildingRate)
+                        {
+                            cityMap[i, j] = 1;
+                        }
+                        else
+                        {
+                            cityMap[i, j] = 2;
+                        }
                     }
                 }
             }
@@ -137,14 +152,16 @@ public class CityGenerator : MonoBehaviour
         {
             for(int j = 0; j < _map.GetLength(1); j++) 
             {
+                // Obtain the number to know which type of tile is
                 int detNum = ObtainNum(_map, i, j);
 
-                if (detNum != 1)
+                if (detNum != 1)  
                 {
-                    //nothing
+                    //if it's not a building do nothing
                 }
                 else
                 {
+                    // Create the building base on a random heigh input
                     int rndHeight = Random.Range(6, 13);
                     GenerateBuildingHeight(rndHeight, new Vector3(i, 0, j));
                 }
@@ -198,10 +215,12 @@ public class CityGenerator : MonoBehaviour
             {
                 if((_map[i,j] == 1 || _map[i,j] == 2)) 
                 {   
+                    // Count neighbours of type building and garden to know the sidewalk has to be in between building and Road. It should be less than 4
                    if(CountingNeighbours(_map, i, j) < 4) 
-                    {                        
+                   {
+                        //Adding the type of tile sideWalk
                         _tempMap[i, j] = 3;
-                    }
+                   }
                 }
 
             }
@@ -221,8 +240,11 @@ public class CityGenerator : MonoBehaviour
                 if (_map[i,j] == 1) 
                 {
                     GameObject buildingObj = buildingPrefab;
-                    //buildingObj = buildingPrefab;
-                    buildingObj.transform.localScale = new Vector3(buildingObj.transform.localScale.x , 25 * Random.Range(1, 10 * (int)heightMap[i,j]) * heightMap[i,j], buildingObj.transform.localScale.z);                      
+                    
+                    // Scaling the building to be taller. The heigh it would depend on how close it is from the centre of the city. There will be a random factor as well
+                    buildingObj.transform.localScale = new Vector3(buildingObj.transform.localScale.x , 25 * Random.Range(1, 10 * (int)heightMap[i,j]) * heightMap[i,j], buildingObj.transform.localScale.z);   
+                    
+                    // Positioning the building based on the height
                     Instantiate(buildingObj, new Vector3(i * blockSize, buildingObj.transform.localScale.y / 2, j * blockSize), Quaternion.identity, parentObj.transform);
                    
                 }
@@ -242,9 +264,8 @@ public class CityGenerator : MonoBehaviour
 
                 float numDisX = 1f - (Mathf.Abs((float)i - centreX)) / centreX;    // This calculates how close it is from the centre of X
                 float numDisY = 1f - (Mathf.Abs((float)j - centreY))/ centreY;  // This calculates how close it is from the centre of Y
-                float numDis = (numDisX + numDisY)/2;    
-
-                //Debug.Log($"({i}, {j}): {numDis}"); 
+                float numDis = (numDisX + numDisY)/2;   
+                                 
                 arrayHeight[i, j] = numDis;                 
             }
         }
@@ -259,6 +280,7 @@ public class CityGenerator : MonoBehaviour
             {
                 if (_cityMap[i,j] == 3 && CountingNeighbours(_cityMap, i, j) == 0) 
                 {
+                    // Placing two traffic light in each corner of the blocks
                     Instantiate(lightTrafficObj, new Vector3(i * blockSize + 2, 4.5f, j * blockSize + 2), Quaternion.identity, parentObj.transform);
                     Instantiate(lightTrafficObj, new Vector3(i * blockSize - 2, 4.5f, j * blockSize - 2), Quaternion.Euler(0f, 90f, 0f), parentObj.transform);
                 }
@@ -270,13 +292,27 @@ public class CityGenerator : MonoBehaviour
     {
         for (int i = parentObj.transform.childCount - 1; i >= 0; i--)
         {
+            // Getting the child object 
             Transform child = parentObj.transform.GetChild(i);
 
-            // Destroy in Play Mode
-            Destroy(child.gameObject);
+            // Destroy the object
+            Destroy(child.gameObject);            
+        }
+    }
 
-            // If you want it to work in Edit Mode too, use:
-            // DestroyImmediate(child.gameObject);
+
+    public void ColorTheBuilding() 
+    {
+        for (int i = parentObj.transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = parentObj.transform.GetChild(i);
+
+            if (child.gameObject.name.Contains("BuildingCube")) 
+            {
+                var childObj = child.gameObject;   // Getting all the object that are buildings
+                Color myColor = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));   // Getting a random color
+                childObj.GetComponent<Renderer>().material.color = myColor;   // Applying the new color
+            }
         }
     }
 
