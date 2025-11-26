@@ -11,6 +11,10 @@ public class CityGenerator : MonoBehaviour
     public GameObject sidewalkPrefab;
     public GameObject parentObj;
     public GameObject lightTrafficObj;
+    public GameObject dirtObj;
+    public GameObject bridgeObj; 
+    private float surfaceSize = 200f; 
+    
 
     [Range(0, 100)]
     [SerializeField] int buildingRate = 50; // The chances to build a building or a garden
@@ -27,13 +31,8 @@ public class CityGenerator : MonoBehaviour
         cityMap = new int[cityWidth, cityHeight];
         buildingHeightPatron = new float[cityWidth, cityHeight];        
         tempCityMap = new int[cityWidth, cityHeight];
-
-        blockWidth = Random.Range(5, Mathf.Max(7, cityWidth / 2));
-        
-
-
-        BuildingTheCity(cityMap, tempCityMap, buildingHeightPatron);
-        
+        blockWidth = Random.Range(5, Mathf.Max(7, cityWidth / 2));        
+        BuildingTheCity(cityMap, tempCityMap, buildingHeightPatron);        
     }
 
     // Update is called once per frame
@@ -56,7 +55,9 @@ public class CityGenerator : MonoBehaviour
         GetRandomHeight(_heighRanges);
         InsertBuilding(_cityMap, _heighRanges);
         AddTrafficLight(_cityMap);
-        ColorTheBuilding(); 
+        ColorTheBuilding();
+        CreateTheBellowSurface();
+        CreateBridges(_cityMap); 
     }
 
     void GenerateCity()
@@ -101,7 +102,7 @@ public class CityGenerator : MonoBehaviour
         {
             for (int j = 0; j < cityHeight; j++)
             {
-                if (i == 0 || j == 0 || i == cityWidth || j == cityHeight)
+                if (i == 0 || j == 0 || i == cityWidth - 1 || j == cityHeight - 1)
                 {
                     // If its in the border of the city, the tile will be a road
                     cityMap[i, j] = 0;
@@ -316,5 +317,35 @@ public class CityGenerator : MonoBehaviour
         }
     }
 
+    public void CreateTheBellowSurface() 
+    {
+        var surfaceCub = Instantiate(dirtObj, new Vector3(cityWidth * blockSize / 2, -surfaceSize/2 - 0.1f, cityHeight * blockSize / 2), Quaternion.identity);
+        surfaceCub.transform.localScale = new Vector3(cityWidth * blockSize, surfaceSize, cityHeight * blockSize); 
+    }
+
+
+    public void CreateBridges(int[,] _cityMap) 
+    {
+        // Locate the bottom centre position
+        Vector3 bottomCentre = new Vector3((_cityMap.GetLength(0) / 2) * blockSize, 0, 0);
+        
+
+        //Locate the Left centre position
+        Vector3 rightCentre = new Vector3(_cityMap.GetLength(0) * blockSize, 0, (_cityMap.GetLength(1) / 2) * blockSize);
+       
+
+        // Locate the Right centre Position
+        Vector3 leftCentre = new Vector3(0, 0, (_cityMap.GetLength(1) / 2)  * blockSize);
+        
+
+        // Locate the upper centre position
+        Vector3 upperCentre = new Vector3((_cityMap.GetLength(0) / 2) * blockSize, 0, _cityMap.GetLength(1) * blockSize);
+        
+        var bridgeBC = Instantiate(bridgeObj, bottomCentre, Quaternion.identity);
+        var bridgeRC = Instantiate(bridgeObj, rightCentre, Quaternion.identity);
+        var bridgeLC = Instantiate(bridgeObj, leftCentre, Quaternion.identity);
+        var bridgeUC = Instantiate(bridgeObj, upperCentre, Quaternion.identity); 
+
+    }
 
 }

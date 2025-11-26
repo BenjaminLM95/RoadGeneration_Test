@@ -181,7 +181,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 100
+  orthographic size: 99
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -206,7 +206,7 @@ Transform:
   m_GameObject: {fileID: 1077265014}
   serializedVersion: 2
   m_LocalRotation: {x: 0.23911765, y: 0.3696438, z: -0.09904577, w: 0.89239913}
-  m_LocalPosition: {x: -6, y: 95.12, z: 0}
+  m_LocalPosition: {x: 0.34, y: 95.12, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -325,6 +325,8 @@ MonoBehaviour:
   sidewalkPrefab: {fileID: 3174887336553872691, guid: 749b548fdfd01544685ec0fac71a2076, type: 3}
   parentObj: {fileID: 1248152373}
   lightTrafficObj: {fileID: 6025738160318749311, guid: 65335cbe5e891be41ab21251d5d43b16, type: 3}
+  dirtObj: {fileID: 7053021315192703175, guid: bdabd0b80fa860e44b66c9397ecb916a, type: 3}
+  bridgeObj: {fileID: 2479194652812433457, guid: 57ab345c367ca7b42b097ed9e24632eb, type: 3}
   buildingRate: 70
   blockWidth: 0
 --- !u!4 &1516962632
