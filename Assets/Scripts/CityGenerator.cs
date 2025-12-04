@@ -57,7 +57,7 @@ public class CityGenerator : MonoBehaviour
         AddTrafficLight(_cityMap);
         ColorTheBuilding();
         CreateTheBellowSurface();
-        CreateBridges(_cityMap); 
+        //CreateBridges(_cityMap); 
     }
 
     void GenerateCity()
@@ -171,7 +171,7 @@ public class CityGenerator : MonoBehaviour
         }
     }
 
-    public int CountingNeighbours(int[,] map, int x, int y) 
+    public int CountingNeighbours(int[,] map, int x, int y, int typeTile) 
     {
         int count = 0; 
 
@@ -183,7 +183,7 @@ public class CityGenerator : MonoBehaviour
                 {
                     if ((x == i || y == j) && !(i == x && j == y))  // Selecting only the neighbours
                     {
-                        if (map[i, j] == 1 || map[i, j] == 2)  // The result should be equal to building or park tile (1 or 2)
+                        if (map[i, j] == typeTile)
                         {
                             
                             count++;
@@ -195,6 +195,32 @@ public class CityGenerator : MonoBehaviour
         
         return count; 
     }
+
+    public int CountingNeighbours(int[,] map, int x, int y, int typeTile, int typeTile2)
+    {
+        int count = 0;
+
+        for (int i = x - 1; i <= x + 1; i++)
+        {
+            for (int j = y - 1; j <= y + 1; j++)
+            {
+                if (i >= 0 && j >= 0 && i < map.GetLength(0) && j < map.GetLength(1))  // Avoid getting out of bounds of the array
+                {
+                    if ((x == i || y == j) && !(i == x && j == y))  // Selecting only the neighbours
+                    {
+                        if (map[i, j] == typeTile || map[i,j] == typeTile2)  // In case there are two, it would check for the two tiles
+                        {
+
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+
 
     public void GettingACopyOfMap(int[,] map, int[,] copyMap) 
     { 
@@ -217,7 +243,7 @@ public class CityGenerator : MonoBehaviour
                 if((_map[i,j] == 1 || _map[i,j] == 2)) 
                 {   
                     // Count neighbours of type building and garden to know the sidewalk has to be in between building and Road. It should be less than 4
-                   if(CountingNeighbours(_map, i, j) < 4) 
+                   if(CountingNeighbours(_map, i, j, 1 , 2) < 4 ) 
                    {
                         //Adding the type of tile sideWalk
                         _tempMap[i, j] = 3;
@@ -279,7 +305,7 @@ public class CityGenerator : MonoBehaviour
         {
             for(int j = 0; j < _cityMap.GetLength(1); j++) 
             {
-                if (_cityMap[i,j] == 3 && CountingNeighbours(_cityMap, i, j) == 0) 
+                if (_cityMap[i,j] == 3 && (CountingNeighbours(_cityMap, i, j, 1, 2) == 0) && CountingNeighbours(_cityMap, i, j, 3) < 3)
                 {
                     // Placing two traffic light in each corner of the blocks
                     Instantiate(lightTrafficObj, new Vector3(i * blockSize + 2, 4.5f, j * blockSize + 2), Quaternion.identity, parentObj.transform);
